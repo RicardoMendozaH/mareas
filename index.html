@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captain Claude — Cerrillos</title>
+<style>
+  :root {
+    --bg-grad-1:#eff6ff; --bg-grad-2:#f0fdfa;
+    --card:#ffffff; --text:#1f2937; --text-dim:#4b5563; --muted:#6b7280;
+    --corvina-1:#3b82f6; --corvina-2:#2563eb;
+    --lenguado-1:#14b8a6; --lenguado-2:#0d9488;
+    --premium-1:#a855f7; --premium-2:#ec4899;
+    --high-1:#22c55e; --high-2:#16a34a;
+    --medium-1:#eab308; --medium-2:#f97316;
+    --low:#6b7280;
+    --tide-bg:#eff6ff; --wave-bg:#f0fdfa; --luna-bg:#fefce8;
+    --note-bg:#fffbeb; --note-border:#fcd34d;
+    --red:#dc2626; --yellow:#eab308; --green:#16a34a;
+    --shadow: 0 4px 12px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg-grad-1:#0f172a; --bg-grad-2:#042f2e;
+      --card:#1e293b; --text:#f1f5f9; --text-dim:#cbd5e1; --muted:#94a3b8;
+      --tide-bg:#1e293b; --wave-bg:#134e4a; --luna-bg:#3f3f23;
+      --note-bg:#422006; --note-border:#d97706;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:linear-gradient(135deg,var(--bg-grad-1),var(--bg-grad-2));
+    color:var(--text); line-height:1.5; padding:12px; min-height:100vh;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  .card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  h1{font-size:1.4rem;margin-bottom:4px}
+  h2{font-size:1.15rem;margin:12px 0 8px}
+  h3{font-size:1rem;margin:8px 0 6px}
+  .header .sub{color:var(--text-dim);font-size:.9rem}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px;font-size:.82rem;color:var(--muted)}
+  .meta a{color:inherit}
+  .scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:520px){.scores{grid-template-columns:1fr}}
+  .score{border-radius:12px;padding:14px;color:#fff}
+  .score.corvina{background:linear-gradient(135deg,var(--corvina-1),var(--corvina-2))}
+  .score.lenguado{background:linear-gradient(135deg,var(--lenguado-1),var(--lenguado-2))}
+  .score .n{font-size:2.6rem;font-weight:800;line-height:1}
+  .score .label{font-size:.9rem;opacity:.95}
+  .score .exact{font-size:.78rem;opacity:.85;margin-top:4px}
+  .semaforo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:520px){.semaforo{grid-template-columns:1fr}}
+  .sem{border-radius:10px;padding:10px;background:var(--tide-bg);font-size:.88rem}
+  .sem .title{font-weight:600;margin-bottom:4px}
+  .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .dot.r{background:var(--red)} .dot.y{background:var(--yellow)} .dot.g{background:var(--green)}
+  .cond{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px}
+  .c{padding:8px;border-radius:8px;background:var(--tide-bg)}
+  .c .k{font-size:.72rem;color:var(--muted);text-transform:uppercase}
+  .c .v{font-size:1rem;font-weight:600;margin-top:2px}
+  .c .u{font-size:.75rem;color:var(--muted);margin-left:3px}
+  .windows{margin-top:8px}
+  .w{border-radius:8px;padding:10px;margin-bottom:6px;color:#fff;font-size:.88rem}
+  .w .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline;font-weight:600}
+  .w .reason{font-size:.8rem;opacity:.95;margin-top:3px}
+  .w.premium{background:linear-gradient(135deg,var(--premium-1),var(--premium-2))}
+  .w.high{background:linear-gradient(135deg,var(--high-1),var(--high-2))}
+  .w.medium{background:linear-gradient(135deg,var(--medium-1),var(--medium-2))}
+  .w.low{background:var(--low)}
+  /* Mejores horarios - diseño por bloques */
+  .hour-intro{font-size:.9rem;color:var(--text-dim);margin-bottom:12px;line-height:1.5}
+  .hour-block{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:stretch;background:var(--card);border:1px solid rgba(100,116,139,.15);border-left:5px solid var(--low);border-radius:10px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  @media(max-width:480px){.hour-block{grid-template-columns:70px 1fr;gap:8px;padding:10px}}
+  .hour-block.prio-premium{border-left-color:#a855f7;background:linear-gradient(90deg,rgba(168,85,247,.08) 0,var(--card) 60px)}
+  .hour-block.prio-high{border-left-color:#22c55e;background:linear-gradient(90deg,rgba(34,197,94,.08) 0,var(--card) 60px)}
+  .hour-block.prio-medium{border-left-color:#eab308;background:linear-gradient(90deg,rgba(234,179,8,.08) 0,var(--card) 60px)}
+  .hour-block.prio-low{border-left-color:#94a3b8}
+  .hour-left{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+  .hour-icon{font-size:1.8rem;line-height:1}
+  @media(max-width:480px){.hour-icon{font-size:1.4rem}}
+  .hour-time{font-size:.74rem;font-weight:700;color:var(--text-dim);text-align:center;line-height:1.2}
+  .hour-body{min-width:0}
+  .hour-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px}
+  .hour-name{font-size:1rem;font-weight:700;color:var(--text)}
+  .hour-tag{font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+  .tag-premium{background:#a855f7;color:#fff}
+  .tag-high{background:#22c55e;color:#fff}
+  .tag-medium{background:#eab308;color:#fff}
+  .tag-low{background:#94a3b8;color:#fff}
+  .hour-why{font-size:.86rem;color:var(--text-dim);line-height:1.45;margin-bottom:6px}
+  .hour-meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;font-size:.78rem}
+  .hour-target{color:var(--text);font-weight:600}
+  .hour-code{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;background:rgba(100,116,139,.1);padding:2px 6px;border-radius:4px}
+  .timeline{position:relative;height:60px;background:var(--tide-bg);border-radius:8px;margin-top:8px;overflow:hidden}
+  .timeline .night{position:absolute;top:0;bottom:0;background:rgba(30,41,59,.25)}
+  .timeline .win{position:absolute;top:18px;height:24px;border-radius:4px;opacity:.9}
+  .timeline .mark{position:absolute;top:0;bottom:0;width:2px}
+  .timeline .mark.sun{background:#f59e0b}
+  .timeline .mark.pleamar{background:#2563eb}
+  .timeline .mark.bajamar{background:#f97316}
+  .timeline .hours{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);padding:0 4px}
+  .tides-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:.88rem}
+  .tides-table th,.tides-table td{padding:6px 4px;text-align:left;border-bottom:1px solid rgba(100,116,139,.2)}
+  .tides-table th{font-size:.72rem;text-transform:uppercase;color:var(--muted)}
+  .note{background:var(--note-bg);border:1px solid var(--note-border);border-radius:8px;padding:10px;font-size:.82rem;margin-top:8px}
+  .err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:12px;border-radius:8px}
+  .warn{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;padding:8px;border-radius:6px;margin-bottom:6px;font-size:.88rem}
+  .btn{background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:.88rem}
+  .btn:hover{opacity:.9}
+  .ana{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:8px}
+  .ana .a{padding:10px;border-radius:8px}
+  .ana .a.m{background:var(--tide-bg)}
+  .ana .a.o{background:var(--wave-bg)}
+  .ana .a.l{background:var(--luna-bg)}
+  .ana .a .s{font-size:1.6rem;font-weight:800}
+  .ana .a .t{font-size:.72rem;color:var(--muted);text-transform:uppercase}
+  .ana .a .r{font-size:.82rem;margin-top:4px}
+  .foot{text-align:center;color:var(--muted);font-size:.78rem;padding:10px}
+  .skeleton{height:20px;background:linear-gradient(90deg,rgba(100,116,139,.1),rgba(100,116,139,.25),rgba(100,116,139,.1));background-size:200% 100%;animation:sh 1.2s infinite;border-radius:4px;margin-bottom:8px}
+  @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  /* Rueda de marea y narrativa */
+  .tide-section{display:grid;grid-template-columns:minmax(220px,280px) 1fr;gap:24px;align-items:center}
+  @media(max-width:620px){.tide-section{grid-template-columns:1fr;gap:16px}}
+  .tide-wheel-wrap{display:flex;justify-content:center;padding:4px 0}
+  .tide-wheel{max-width:300px;width:100%;height:auto;color:var(--text-dim)}
+  .tide-wheel .lbl{fill:var(--text);font-size:15px;font-weight:700;font-family:inherit}
+  .tide-wheel .lbl-t{fill:var(--text-dim);font-size:13px;font-family:inherit}
+  .tide-wheel .lbl-s{fill:var(--muted);font-size:12px;font-family:inherit}
+  .tide-wheel .lbl-plea{fill:#3b82f6}
+  .tide-wheel .lbl-baja{fill:#dc2626}
+  .tide-narrative{font-size:.95rem;line-height:1.6;color:var(--text)}
+  .tide-narrative p{margin-bottom:10px}
+  .tide-narrative b{color:var(--text);font-weight:700}
+  .sun-time{color:#f59e0b;font-weight:700}
+  .plea-c{color:#3b82f6;font-weight:700}
+  .baja-c{color:#dc2626;font-weight:700}
+  .tide-status-box{background:rgba(59,130,246,.08);border-left:3px solid #3b82f6;padding:10px 14px;border-radius:6px;font-style:italic;margin-top:6px;font-size:.92rem;color:var(--text-dim)}
+  @media (prefers-color-scheme: dark){.tide-status-box{background:rgba(59,130,246,.18)}}
+  .tide-status-box .highlight{font-style:normal;font-weight:700}
+  .tide-caption{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;margin-top:14px;padding-top:10px;border-top:1px solid rgba(100,116,139,.2);font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+  .tide-caption .cap-r{text-transform:uppercase}
+  .tide-section-nowheel{grid-template-columns:1fr !important}
+  /* Botón de día toggle */
+  .day-toggle-bar{display:flex;justify-content:flex-end;margin-bottom:12px}
+  .btn-day{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border:none;padding:10px 18px;border-radius:999px;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(168,85,247,.3);transition:transform .15s,box-shadow .15s}
+  .btn-day:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(168,85,247,.4)}
+  .btn-day:active{transform:translateY(0)}
+  /* Periodos solunares */
+  .solunar-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+  @media(max-width:620px){.solunar-grid{grid-template-columns:1fr}}
+  .sol-col-title{font-size:.78rem;font-weight:800;color:var(--muted);letter-spacing:.1em;margin:0 0 10px}
+  .sol-card{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;background:var(--tide-bg);margin-bottom:10px}
+  .sol-icon{flex-shrink:0}
+  .sol-body{flex:1;min-width:0}
+  .sol-act{font-size:.82rem;font-weight:800;color:#f59e0b;letter-spacing:.04em;margin-bottom:2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .sol-fish{letter-spacing:2px;font-size:.9rem}
+  .sol-fish .off{opacity:.22;filter:grayscale(1)}
+  .sol-range{font-size:.95rem;margin:2px 0}
+  .sol-range b{color:var(--text);font-weight:700}
+  .sol-desc{font-size:.84rem;color:var(--text-dim)}
+  .sol-sun-coinc{margin-top:6px;padding:6px 8px;border-left:3px solid #16a34a;background:rgba(34,197,94,.08);border-radius:4px;font-size:.82rem;color:var(--text-dim)}
+  .sol-sun-coinc b{color:#16a34a;font-weight:700}
+  .sol-card.sol-green{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25)}
+  .sol-act-green{color:#16a34a !important}
+  .sol-verdict{padding:10px 14px;border-radius:8px;font-size:.92rem;margin-bottom:12px}
+  .verdict-green{background:rgba(34,197,94,.12);color:#166534;border-left:4px solid #22c55e}
+  .verdict-amber{background:rgba(234,179,8,.12);color:#854d0e;border-left:4px solid #eab308}
+  .verdict-gray{background:rgba(100,116,139,.08);color:var(--text-dim);border-left:4px solid #94a3b8}
+  @media (prefers-color-scheme: dark){
+    .verdict-green{color:#86efac}
+    .verdict-amber{color:#fde047}
+    .sol-sun-coinc b{color:#4ade80}
+    .sol-act-green{color:#4ade80 !important}
+  }
+  .sol-chart-wrap{margin:8px 0;padding:8px;background:rgba(100,116,139,.04);border-radius:8px;color:var(--text-dim)}
+  .solunar-chart{width:100%;height:auto;max-height:260px;display:block}
+  .sol-legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.78rem;color:var(--muted);margin-top:4px;padding:4px 6px}
+  .sol-legend .lg{display:flex;align-items:center;gap:6px}
+  .sol-legend .sw{display:inline-block;width:14px;height:10px;border-radius:2px}
+  .sol-legend .sw.green{background:#22c55e;opacity:.78;border:1px solid #16a34a}
+  .sol-legend .sw.amber{background:#eab308;opacity:.78;border:1px solid #d97706}
+  .sol-theory{margin-top:14px;padding:10px 14px;background:rgba(100,116,139,.06);border-radius:8px;font-size:.88rem}
+  .sol-theory summary{cursor:pointer;font-weight:700;color:var(--text-dim);outline:none}
+  .sol-theory summary:hover{color:var(--text)}
+  .sol-theory p{margin:8px 0;line-height:1.55;color:var(--text-dim)}
+  .sol-theory p b{color:var(--text)}
+  /* Detalles del score */
+  .score-explain{margin-top:12px;padding:10px 14px;background:rgba(100,116,139,.06);border-radius:8px;font-size:.88rem}
+  .score-explain summary{cursor:pointer;font-weight:700;color:var(--text-dim);outline:none}
+  .score-explain summary:hover{color:var(--text)}
+  .score-explain p{margin:10px 0;line-height:1.5;color:var(--text-dim)}
+  .score-formula{background:rgba(100,116,139,.08);padding:10px 12px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem;line-height:1.7;margin:8px 0}
+  .score-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.82rem}
+  .score-table th,.score-table td{padding:5px 8px;text-align:left;border-bottom:1px solid rgba(100,116,139,.15)}
+  .score-table th{font-size:.72rem;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .score-table td:last-child{text-align:right;font-weight:600}
+  /* Detalles de "ver más ventanas" */
+  .more-windows{margin-top:10px;padding:8px 12px;background:rgba(100,116,139,.04);border-radius:8px}
+  .more-windows summary{cursor:pointer;font-size:.88rem;font-weight:600;color:var(--text-dim);outline:none;padding:4px 0}
+  .more-windows summary:hover{color:var(--text)}
+  .more-windows[open] summary{margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="card header">
+    <h1>🎣 Captain Claude — Cerrillos</h1>
+    <div class="sub">Pronóstico de pesca de orilla · Spinning y carnada natural</div>
+    <div class="meta" id="meta">
+      <span>Spot: Cerrillos (−16.675, −72.554)</span>
+      <span id="now">—</span>
+      <span>Fuente: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> · modelo GFS/GFS-Wave</span>
+      <span>📷 <a href="https://instagram.com/ricardomendozahuerta" target="_blank" rel="noopener">@ricardomendozahuerta</a></span>
+    </div>
+  </div>
+  <div id="content">
+    <div class="card" id="status">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="width:80%"></div>
+      <div class="skeleton" style="width:60%"></div>
+      <div style="margin-top:8px;color:var(--muted);font-size:.88rem">Consultando Open-Meteo…</div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.js"></script>
+<script>
+"use strict";
+
+const SPOT = { lat: -16.675454, lon: -72.553936, name: "Cerrillos", tz: "America/Lima" };
+
+const CACHE_KEY = "cc_cerrillos_v1";
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 h
+
+const MARINE_URL = `https://marine-api.open-meteo.com/v1/marine?latitude=${SPOT.lat}&longitude=${SPOT.lon}` +
+  `&hourly=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction,` +
+  `sea_surface_temperature,sea_level_height_msl&forecast_days=10&past_days=1&timezone=${encodeURIComponent(SPOT.tz)}`;
+
+const FORECAST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${SPOT.lat}&longitude=${SPOT.lon}` +
+  `&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl,cloud_cover,precipitation,uv_index` +
+  `&forecast_days=10&past_days=1&timezone=${encodeURIComponent(SPOT.tz)}&wind_speed_unit=kn`;
+
+// ---------- Utilidades ----------
+const fmt2 = n => n.toString().padStart(2,"0");
+const hhmm = d => `${fmt2(d.getHours())}:${fmt2(d.getMinutes())}`;
+const hhmmAmPm = d => {
+  let h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? "pm" : "am";
+  h = h % 12 || 12;
+  return `${h}:${fmt2(m)} ${ampm}`;
+};
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const dateLong = d => `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+const dateCaption = d => `${d.getDate()} DE ${MESES[d.getMonth()].toUpperCase()} DE ${d.getFullYear()}, ${hhmmAmPm(d).toUpperCase()}`;
+const duration = ms => {
+  const mins = Math.max(0, Math.round(ms / 60000));
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if(h === 0) return `${m} ${m===1?"minuto":"minutos"}`;
+  const hPart = `${h} ${h===1?"hora":"horas"}`;
+  return m === 0 ? hPart : `${hPart} y ${m} ${m===1?"minuto":"minutos"}`;
+};
+const localISO = d => `${d.getFullYear()}-${fmt2(d.getMonth()+1)}-${fmt2(d.getDate())}T${fmt2(d.getHours())}:${fmt2(d.getMinutes())}`;
+const compass = deg => {
+  const dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO","O","ONO","NO","NNO"];
+  return dirs[Math.round(((deg%360)/22.5))%16];
+};
+function parseLocal(iso){
+  // "2026-11-12T13:00" → Date en hora local
+  const [d,t] = iso.split("T");
+  const [Y,M,D] = d.split("-").map(Number);
+  const [h,m] = t.split(":").map(Number);
+  return new Date(Y, M-1, D, h, m, 0, 0);
+}
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function overlap(a1,a2,b1,b2){ return Math.max(a1,b1) < Math.min(a2,b2); }
+function clamp(x,lo,hi){ return Math.max(lo, Math.min(hi, x)); }
+
+// ---------- Fetch con cache ----------
+async function loadData(force=false){
+  if(!force){
+    try{
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if(raw){
+        const c = JSON.parse(raw);
+        if(Date.now()-c.ts < CACHE_TTL_MS) return c.data;
+      }
+    }catch(e){}
+  }
+  const [mR, fR] = await Promise.all([ fetch(MARINE_URL), fetch(FORECAST_URL) ]);
+  if(!mR.ok) throw new Error("Marine API " + mR.status);
+  if(!fR.ok) throw new Error("Forecast API " + fR.status);
+  const [marine, forecast] = await Promise.all([ mR.json(), fR.json() ]);
+  if(marine.error) throw new Error("Marine: " + marine.reason);
+  if(forecast.error) throw new Error("Forecast: " + forecast.reason);
+  const data = { marine, forecast, fetched: new Date().toISOString() };
+  try{ sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); }catch(e){}
+  return data;
+}
+
+// ---------- Procesamiento ----------
+function buildHourly(data){
+  const mh = data.marine.hourly, fh = data.forecast.hourly;
+  const times = mh.time.map(parseLocal);
+  return times.map((t,i)=>({
+    t, i,
+    wave_h: mh.wave_height?.[i], wave_T: mh.wave_period?.[i], wave_dir: mh.wave_direction?.[i],
+    swell_h: mh.swell_wave_height?.[i], swell_T: mh.swell_wave_period?.[i], swell_dir: mh.swell_wave_direction?.[i],
+    sst: mh.sea_surface_temperature?.[i], sea: mh.sea_level_height_msl?.[i],
+    air: fh.temperature_2m?.[i], wind: fh.wind_speed_10m?.[i], wind_dir: fh.wind_direction_10m?.[i],
+    gust: fh.wind_gusts_10m?.[i], pressure: fh.pressure_msl?.[i],
+    clouds: fh.cloud_cover?.[i], precip: fh.precipitation?.[i], uv: fh.uv_index?.[i]
+  }));
+}
+
+function findTideExtremes(hourly){
+  // Devuelve extremos [{t, h, kind}] en toda la serie.
+  // Usa interpolación parabólica con los 3 puntos horarios (t-1, t, t+1):
+  // ajusta y = a·x² + b·x + c y ubica el vértice en tiempo continuo.
+  // Esto reduce el error temporal de ±30 min (muestreo horario de GFS/FES2014)
+  // a ±5 min típicos. La altura también se interpola.
+  const ext = [];
+  for(let i=1;i<hourly.length-1;i++){
+    const y0 = hourly[i-1].sea, y1 = hourly[i].sea, y2 = hourly[i+1].sea;
+    if(y0==null||y1==null||y2==null) continue;
+    // Detector tolerante a plateaus de 2h
+    let kind = null;
+    if(y1>y0 && y1>=y2) kind = "pleamar";
+    else if(y1<y0 && y1<=y2) kind = "bajamar";
+    if(!kind) continue;
+    // Interpolación parabólica sobre x ∈ {0,1,2}
+    // Sistema: y0=c, y1=a+b+c, y2=4a+2b+c
+    // → c=y0, a=(y0-2y1+y2)/2, b=y1-y0-a
+    const A = (y0 - 2*y1 + y2) / 2;
+    let fracX = 1, height = y1;
+    if(Math.abs(A) > 1e-9){
+      const B = y1 - y0 - A;
+      const vertex = -B / (2*A);
+      if(vertex >= 0 && vertex <= 2){
+        fracX = vertex;
+        height = y0 + B*vertex + A*vertex*vertex;
+      }
+    }
+    // fracX se mide desde hourly[i-1] (0=prev, 1=current, 2=next)
+    const tExact = new Date(hourly[i-1].t.getTime() + fracX * 3600 * 1000);
+    ext.push({ t: tExact, h: height, kind });
+  }
+  return ext;
+}
+
+function dayAmplitude(extremes, day){
+  const today = extremes.filter(e => sameDay(e.t, day));
+  if(!today.length) return { amp: 0, pleamares: [], bajamares: [] };
+  const pleamares = today.filter(e=>e.kind==="pleamar");
+  const bajamares = today.filter(e=>e.kind==="bajamar");
+  const hi = pleamares.length ? Math.max(...pleamares.map(e=>e.h)) : null;
+  const lo = bajamares.length ? Math.min(...bajamares.map(e=>e.h)) : null;
+  const amp = (hi!=null && lo!=null) ? hi - lo : 0;
+  return { amp, pleamares, bajamares, hi, lo };
+}
+
+function periodMaxAmplitude(extremes){
+  // Para cada día, calcula amplitud; devuelve el máximo
+  const byDay = {};
+  extremes.forEach(e=>{
+    const k = e.t.toDateString();
+    (byDay[k] = byDay[k] || []).push(e);
+  });
+  let max = 0;
+  Object.values(byDay).forEach(list=>{
+    const pl = list.filter(x=>x.kind==="pleamar").map(x=>x.h);
+    const bj = list.filter(x=>x.kind==="bajamar").map(x=>x.h);
+    if(pl.length && bj.length){
+      const a = Math.max(...pl) - Math.min(...bj);
+      if(a>max) max = a;
+    }
+  });
+  return max;
+}
+
+function lunarTransits(day, lat, lon){
+  // Busca max y min altitud en el día (tránsito y antitránsito)
+  const start = new Date(day); start.setHours(0,0,0,0);
+  const end = new Date(day); end.setHours(23,59,59,999);
+  let maxA = -Infinity, maxT = null, minA = Infinity, minT = null;
+  for(let t = start.getTime(); t<=end.getTime(); t += 10*60*1000){
+    const d = new Date(t);
+    const p = SunCalc.getMoonPosition(d, lat, lon);
+    if(p.altitude > maxA){ maxA = p.altitude; maxT = d; }
+    if(p.altitude < minA){ minA = p.altitude; minT = d; }
+  }
+  // Solo retornar si están "dentro" del día con sentido
+  return { transit: maxT, antitransit: minT, maxAlt: maxA, minAlt: minA };
+}
+
+function solunarPeriods(day, lat, lon, sunrise, sunset){
+  // Según la teoría solunar de Knight (1926):
+  // - Mayores: ~2h, centrados en el tránsito lunar (luna sobre meridiano) y su opuesto (luna bajo nuestros pies).
+  // - Menores: ~1h, centrados en salida y puesta de la luna.
+  // - Si un periodo solapa con amanecer o atardecer: la actividad sube un nivel (verde).
+  const tr = lunarTransits(day, lat, lon);
+  const moonTimes = SunCalc.getMoonTimes(day, lat, lon); // día local (inUTC=false implícito)
+  const periods = [];
+  function solapa(start, end){
+    const r = sunrise && sunrise >= start && sunrise <= end;
+    const s = sunset && sunset >= start && sunset <= end;
+    if(r) return "salida del sol";
+    if(s) return "puesta del sol";
+    return null;
+  }
+  function make(center, kind, label){
+    if(!center) return null;
+    const half = (kind === "mayor" ? 60 : 30) * 60 * 1000;
+    const start = new Date(center.getTime() - half);
+    const end = new Date(center.getTime() + half);
+    const coinc = solapa(start, end);
+    // Nivel base ALTA para mayores y menores (como tablademareas);
+    // sube a MUY ALTA si el periodo solapa con amanecer o atardecer.
+    const intensity = coinc ? "muy_alta" : "alta";
+    return { center, kind, label, start, end, intensity, solCoincide: !!coinc, coincEvent: coinc };
+  }
+  if(tr.transit) periods.push(make(tr.transit, "mayor", "Tránsito lunar (luna sobre nuestras cabezas)"));
+  if(tr.antitransit) periods.push(make(tr.antitransit, "mayor", "Tránsito lunar opuesto (luna bajo nuestros pies)"));
+  // Para menores: un periodo "pertenece" al día si su INICIO (center - 30min) cae en el día.
+  // Esto captura puestas de luna cercanas a medianoche cuyo periodo arranca antes de las 00:00.
+  // Consulto día actual y siguiente para capturar cruces de medianoche.
+  const dayNext = new Date(day); dayNext.setDate(dayNext.getDate()+1);
+  const mt_next = SunCalc.getMoonTimes(dayNext, lat, lon);
+  const seen = new Set();
+  function addMenor(event, label){
+    if(!event) return;
+    const start = new Date(event.getTime() - 30*60*1000);
+    if(!(sameDay(start, day) || sameDay(event, day))) return;
+    const key = label + ":" + Math.round(event.getTime() / (60*1000));
+    if(seen.has(key)) return;
+    seen.add(key);
+    periods.push(make(event, "menor", label));
+  }
+  addMenor(moonTimes.rise, "Salida de la luna");
+  addMenor(moonTimes.set, "Puesta de la luna");
+  addMenor(mt_next.rise, "Salida de la luna");
+  addMenor(mt_next.set, "Puesta de la luna");
+  return periods.filter(Boolean).sort((a,b)=>a.start - b.start);
+}
+
+function moonScoreFromPhase(phase, illum){
+  // SunCalc phase: 0 new, 0.25 first quarter, 0.5 full, 0.75 last quarter
+  // Mapeo del handoff
+  if(phase < 0.03 || phase > 0.97) return { score: 6, label: "Luna nueva" };
+  if(phase < 0.22) return { score: 8, label: "Creciente iluminante" };
+  if(phase < 0.28) return { score: 9, label: "Cuarto creciente" };
+  if(phase < 0.47) return { score: 7, label: "Gibosa creciente" };
+  if(phase < 0.53) return { score: 5, label: "Luna llena" };
+  if(phase < 0.72) return { score: 7, label: "Gibosa menguante" };
+  if(phase < 0.78) return { score: 9, label: "Cuarto menguante" };
+  return { score: 8, label: "Creciente menguante" };
+}
+
+function solunarIntensity(illum){
+  // Proxy honesto: cerca de llena/nueva → alta; cuartos → baja; medios → media
+  if(illum > 0.85 || illum < 0.15) return "alta";
+  if(illum > 0.40 && illum < 0.60) return "baja";
+  return "media";
+}
+
+// ---------- Ventanas V1–V10 ----------
+function buildWindows(hourly, day, lat, lon){
+  const todayStart = new Date(day); todayStart.setHours(0,0,0,0);
+  const todayEnd = new Date(day); todayEnd.setHours(23,59,59,999);
+  const nextDay = new Date(todayStart); nextDay.setDate(nextDay.getDate()+1);
+  const nextDayEnd = new Date(nextDay); nextDayEnd.setHours(23,59,59,999);
+
+  const extremes = findTideExtremes(hourly);
+  const maxPeriodAmp = periodMaxAmplitude(extremes);
+  const dayInfo = dayAmplitude(extremes, day);
+  const ampPct = maxPeriodAmp ? (dayInfo.amp / maxPeriodAmp) * 100 : 0;
+
+  // Pleamares que caen hoy, y repuntes que empiezan hoy
+  const pleamaresRelevantes = extremes.filter(e => e.kind==="pleamar" && e.t >= todayStart && e.t <= todayEnd);
+  const bajamaresRelevantes = extremes.filter(e => e.kind==="bajamar" && e.t >= todayStart && e.t <= todayEnd);
+  // Para cruce de medianoche también miramos extremos del día siguiente que estén cerca
+  const pleamaresProx = extremes.filter(e => e.kind==="pleamar" && e.t > todayEnd && e.t <= new Date(nextDay.getTime() + 4*60*60*1000));
+  const bajamaresProx = extremes.filter(e => e.kind==="bajamar" && e.t > todayEnd && e.t <= new Date(nextDay.getTime() + 4*60*60*1000));
+
+  const sun = SunCalc.getTimes(day, lat, lon);
+  const sunrise = sun.sunrise, sunset = sun.sunset;
+  const moonTimes = SunCalc.getMoonTimes(day, lat, lon);
+  const solunars = solunarPeriods(day, lat, lon, sunrise, sunset);
+
+  const illum = SunCalc.getMoonIllumination(day);
+  const intensidad = solunarIntensity(illum.fraction);
+  const marejaViva = ampPct > 85;
+
+  // V3 base (amanecer y atardecer ±60 min)
+  const v3Starts = [];
+  if(sunrise) v3Starts.push({ center: sunrise, label: "Amanecer" });
+  if(sunset) v3Starts.push({ center: sunset, label: "Atardecer" });
+  const v3Ranges = v3Starts.map(v=>({
+    start: new Date(v.center.getTime()-60*60*1000),
+    end: new Date(v.center.getTime()+60*60*1000),
+    label: v.label
+  }));
+
+  const windows = [];
+
+  // V2 / V1 / V1⭐ / V7 por cada pleamar
+  const allPleamares = pleamaresRelevantes.concat(pleamaresProx);
+  const v2Ranges = [];
+  allPleamares.forEach(p=>{
+    const v2Start = new Date(p.t.getTime() - 3*60*60*1000);
+    const v2End = p.t;
+    // Solo si cruza o cae hoy
+    if(v2End < todayStart || v2Start > nextDayEnd) return;
+    const v2 = { kind:"V2", start:v2Start, end:v2End, species:"Corvina", quality:"Excelente", priority:"high", reason:"Repunte de llena (pleamar −3h → pleamar)", pleamar: p };
+    // Chequear si V3 se solapa
+    const v3Match = v3Ranges.find(r => overlap(v2Start.getTime(), v2End.getTime(), r.start.getTime(), r.end.getTime()));
+    // Chequear solunar
+    const solMatch = solunars.find(s => overlap(v2Start.getTime(), v2End.getTime(), s.start.getTime(), s.end.getTime()));
+    if(v3Match){
+      const label = solMatch ? "V1⭐" : "V1";
+      const prio = "premium";
+      const qual = solMatch ? "PREMIUM ⭐" : "PREMIUM";
+      let reason = `Combo dorado: repunte de llena + ${v3Match.label.toLowerCase()}`;
+      if(solMatch) reason += ` + ${solMatch.label.toLowerCase()}`;
+      windows.push({ kind:label, start:v2Start, end:v2End, species:"Corvina", quality:qual, priority:prio, reason, pleamar:p, absorbs:["V3",...(solMatch?["V9"]:[])] });
+    }else{
+      windows.push(v2);
+    }
+    // V7 Post-pleamar
+    const v7End = new Date(p.t.getTime() + 60*60*1000);
+    if(v7End >= todayStart && p.t <= nextDayEnd){
+      windows.push({ kind:"V7", start:p.t, end:v7End, species:"Corvina", quality:"Buena", priority:"medium", reason:"Post-pleamar (pleamar → +1h)" });
+    }
+    v2Ranges.push({ start:v2Start, end:v2End });
+  });
+
+  // V3 sueltos (no absorbidos)
+  v3Ranges.forEach(r=>{
+    const absorbed = v2Ranges.some(v => overlap(v.start.getTime(), v.end.getTime(), r.start.getTime(), r.end.getTime()));
+    if(!absorbed){
+      windows.push({ kind:"V3", start:r.start, end:r.end, species:"Corvina", quality:"PREMIUM", priority:"premium", reason:`${r.label} ±60 min` });
+    }
+  });
+
+  // V4 Bajamar ±30 min
+  const allBajamares = bajamaresRelevantes.concat(bajamaresProx);
+  allBajamares.forEach(b=>{
+    const s = new Date(b.t.getTime() - 30*60*1000);
+    const e = new Date(b.t.getTime() + 30*60*1000);
+    if(e < todayStart || s > nextDayEnd) return;
+    windows.push({ kind:"V4", start:s, end:e, species:"Lenguado", quality:"Muy buena", priority:"high", reason:"Cambio de marea (bajamar ±30 min)" });
+  });
+
+  // V6 Repunte de baja
+  allBajamares.forEach(b=>{
+    const s = new Date(b.t.getTime() - 2*60*60*1000);
+    const e = b.t;
+    if(e < todayStart || s > nextDayEnd) return;
+    const species = marejaViva ? "Lenguado" : "Corvina y Lenguado";
+    const reason = marejaViva
+      ? "Repunte de baja (bajamar −2h → bajamar) · coeficiente alto: corvina degradada"
+      : "Repunte de baja (bajamar −2h → bajamar)";
+    windows.push({ kind:"V6", start:s, end:e, species, quality:"Buena", priority:"medium", reason });
+  });
+
+  // V5 / V8 solunares mayores
+  solunars.filter(s=>s.kind==="mayor").forEach(s=>{
+    if(s.end < todayStart || s.start > nextDayEnd) return;
+    if(intensidad === "alta"){
+      windows.push({ kind:"V5", start:s.start, end:s.end, species:"Todas", quality:"Excelente", priority:"high", reason:`Solunar mayor · intensidad alta (${s.label.toLowerCase()})` });
+    }else{
+      windows.push({ kind:"V8", start:s.start, end:s.end, species:"Todas", quality:"Buena", priority:"medium", reason:`Solunar mayor · intensidad ${intensidad} (${s.label.toLowerCase()})` });
+    }
+  });
+
+  // V9 solunares menores (no absorbidos por V1⭐)
+  solunars.filter(s=>s.kind==="menor").forEach(s=>{
+    if(s.end < todayStart || s.start > nextDayEnd) return;
+    const absorbed = windows.some(w => w.kind==="V1⭐" && overlap(w.start.getTime(), w.end.getTime(), s.start.getTime(), s.end.getTime()));
+    if(!absorbed){
+      windows.push({ kind:"V9", start:s.start, end:s.end, species:"Corvina y Lenguado", quality:"Moderada", priority:"low", reason:`Solunar menor (${s.label.toLowerCase()})` });
+    }
+  });
+
+  // V10 reconocimiento: bajamar diurna antes de un V1 o V2
+  const diurnas = allBajamares.filter(b=>{
+    if(!sunrise || !sunset) return false;
+    return b.t >= sunrise && b.t <= sunset;
+  });
+  diurnas.forEach(b=>{
+    const prev2Rep = windows.find(w => (w.kind==="V1" || w.kind==="V1⭐" || w.kind==="V2") && w.start > b.t);
+    if(prev2Rep){
+      const s = new Date(b.t.getTime() - 30*60*1000);
+      const e = new Date(b.t.getTime() + 30*60*1000);
+      windows.push({ kind:"V10", start:s, end:e, species:"—", quality:"Reconocimiento", priority:"low", reason:"Bajamar diurna previa a repunte: ubicar pozones y correntones" });
+    }
+  });
+
+  // Ordenar: premium → high → medium → low; en premium V1⭐ primero; dentro de cada grupo por hora
+  const prioRank = { premium:0, high:1, medium:2, low:3 };
+  windows.sort((a,b)=>{
+    const pa = prioRank[a.priority], pb = prioRank[b.priority];
+    if(pa!==pb) return pa-pb;
+    if(a.priority==="premium"){
+      const ka = a.kind==="V1⭐" ? 0 : a.kind==="V1" ? 1 : 2;
+      const kb = b.kind==="V1⭐" ? 0 : b.kind==="V1" ? 1 : 2;
+      if(ka!==kb) return ka-kb;
+    }
+    return a.start - b.start;
+  });
+
+  return { windows, extremes, dayInfo, ampPct, maxPeriodAmp, sunrise, sunset, illum, intensidad, marejaViva, solunars, moonTimes };
+}
+
+// ---------- Scores ----------
+function mareaScore(ampPct){
+  if(ampPct < 30) return { s:5, r:"Mareas muertas · poco movimiento" };
+  if(ampPct <= 70) return { s:10, r:"Mareas moderadas · ideal para corvina" };
+  if(ampPct <= 85) return { s:7, r:"Mareas vivas · corrientes a vigilar" };
+  return { s:4, r:"Mareas muy vivas · bajamar muy retirada" };
+}
+function oleajeScore(hs){
+  if(hs == null) return { s:0, r:"Sin dato" };
+  if(hs < 0.8) return { s:6, r:"Mar calmo · carnada y señuelos lentos" };
+  if(hs <= 1.5) return { s:10, r:"Perfecto para spinning" };
+  if(hs <= 2.5) return { s:7, r:"Moderado-alto · señuelos más pesados (tope 60 g)" };
+  return { s:3, r:"Muy alto · preferir zonas protegidas" };
+}
+function vientoScoreCorvina(kn){ return kn==null ? {s:0} : (kn<=20 ? {s:8} : {s:4}); }
+function vientoScoreLenguado(kn){ return kn==null ? {s:0} : (kn<=15 ? {s:9} : {s:5}); }
+function presionScoreCorvina(hpa){ return hpa==null ? {s:5} : (hpa>=1010 ? {s:8} : {s:5}); }
+function presionScoreLenguado(hpa){ return hpa==null ? {s:5} : (hpa>=1010 ? {s:7} : {s:5}); }
+
+function peakInDiurnalPrimary(windows, hourly, sunrise, sunset, fn){
+  // Max de fn(hora) dentro de V1/V1⭐/V2/V3 diurnas
+  const ranges = windows.filter(w => ["V1","V1⭐","V2","V3"].includes(w.kind))
+    .map(w=>({ s: w.start, e: w.end }))
+    .filter(r => sunrise && sunset ? r.s < sunset && r.e > sunrise : true);
+  if(!ranges.length) return null;
+  let best = null;
+  hourly.forEach(h=>{
+    const inside = ranges.some(r => h.t >= r.s && h.t <= r.e);
+    if(!inside) return;
+    const v = fn(h);
+    if(v == null) return;
+    if(best == null || v > best) best = v;
+  });
+  return best;
+}
+
+function computeScores(w, hourly){
+  const marea = mareaScore(w.ampPct);
+  const hsMax = peakInDiurnalPrimary(w.windows, hourly, w.sunrise, w.sunset, h => h.wave_h);
+  const oleaje = oleajeScore(hsMax);
+  const windKnMax = peakInDiurnalPrimary(w.windows, hourly, w.sunrise, w.sunset, h => h.wind);
+  const moon = moonScoreFromPhase(w.illum.phase, w.illum.fraction);
+  // Presión actual (hora más cercana)
+  const now = new Date();
+  let press = null, pressPrev = null;
+  for(let i=0;i<hourly.length;i++){
+    if(hourly[i].pressure != null){
+      if(hourly[i].t <= now) { pressPrev = press; press = hourly[i].pressure; }
+      else break;
+    }
+  }
+  const pressTrend = (press!=null && pressPrev!=null)
+    ? (press - pressPrev > 0.3 ? "ascenso" : press - pressPrev < -0.3 ? "descenso" : "estable")
+    : "n/d";
+
+  const corvinaVie = vientoScoreCorvina(windKnMax);
+  const lenguadoVie = vientoScoreLenguado(windKnMax);
+  const corvinaPre = presionScoreCorvina(press);
+  const lenguadoPre = presionScoreLenguado(press);
+
+  const corvina = 0.30*marea.s + 0.25*oleaje.s + 0.20*moon.score + 0.15*corvinaVie.s + 0.10*corvinaPre.s;
+  const lenguado = 0.35*oleaje.s + 0.25*marea.s + 0.20*lenguadoVie.s + 0.10*lenguadoPre.s + 0.10*moon.score;
+
+  function label(s){
+    if(s>=8) return "Excelente";
+    if(s>=6) return "Bueno";
+    if(s>=4) return "Regular";
+    return "Malo";
+  }
+
+  return {
+    marea, oleaje, moon, hsMax, windKnMax, press, pressTrend,
+    corvina: { value: corvina, label: label(corvina), viento: corvinaVie.s, presion: corvinaPre.s },
+    lenguado: { value: lenguado, label: label(lenguado), viento: lenguadoVie.s, presion: lenguadoPre.s }
+  };
+}
+
+// ---------- Advertencias ----------
+function buildWarnings(w, scores, hourly){
+  const warns = [];
+  // Periodo ≥14s en primarias con pleamar y amplitud alta
+  const long = w.windows.find(ww => ["V1","V1⭐","V2"].includes(ww.kind) && hourly.some(h => h.t>=ww.start && h.t<=ww.end && (h.wave_T||0)>=14));
+  if(long && w.ampPct > 70){
+    warns.push("⚠️ Periodo ≥14 s en repunte de llena con amplitud alta: el agua llega más lejos en la playa y en la roca. Precaución con olas 2× la Hs (~3/día).");
+  }
+  // UV extremo
+  const maxUV = Math.max(...hourly.filter(h=>sameDay(h.t,new Date())).map(h=>h.uv||0));
+  if(maxUV >= 11){
+    warns.push(`☀️ UV extremo (máx ${maxUV.toFixed(0)}). Bloqueador 50+, sombra y evitar las horas centrales.`);
+  }
+  // Rachas
+  const today = hourly.filter(h=>sameDay(h.t,new Date()));
+  const gustHigh = today.find(h => h.gust!=null && h.wind!=null && (h.gust - h.wind) >= 5);
+  if(gustHigh){
+    warns.push(`💨 Rachas ${gustHigh.gust.toFixed(0)} kn superan en ≥5 kn la media (${gustHigh.wind.toFixed(0)} kn) a las ${hhmm(gustHigh.t)}.`);
+  }
+  // Noche + periodo ≥14s
+  const nightLong = w.windows.find(ww => ["V1","V1⭐","V2"].includes(ww.kind) && w.sunrise && w.sunset && (ww.start < w.sunrise || ww.end > w.sunset) && hourly.some(h => h.t>=ww.start && h.t<=ww.end && (h.wave_T||0)>=14));
+  if(nightLong){
+    warns.push("🌙 Ventana nocturna con periodo ≥14 s: no pescar solo en roca expuesta.");
+  }
+  return warns;
+}
+
+// ---------- Render ----------
+const prioClass = p => p==="premium"?"premium":p==="high"?"high":p==="medium"?"medium":"low";
+
+// Diccionario: traduce códigos V1..V10 a nombre descriptivo + icono + explicación
+// de por qué ese momento es bueno para pescar (sin jerga técnica).
+const WINDOW_MEANING = {
+  "V1":  { name: "Combo oro: repunte + crepúsculo",         icon: "🏆", why: "El repunte de pleamar coincide con amanecer o atardecer: dos factores a favor al mismo tiempo." },
+  "V1⭐": { name: "Combo doble oro: repunte + crepúsculo + solunar", icon: "👑", why: "Tres factores se suman: el agua sube, hay poca luz y es periodo solunar mayor. Ventana inmejorable." },
+  "V2":  { name: "Repunte de pleamar",                      icon: "🌊", why: "Las 3 horas antes de la pleamar. El agua entra con fuerza, trae oxígeno y alimento, y la corvina sube a cazar." },
+  "V3":  { name: "Amanecer o atardecer",                    icon: "🌅", why: "La poca luz del crepúsculo baja el riesgo para los peces depredadores: salen a alimentarse." },
+  "V4":  { name: "Cambio en la bajamar",                    icon: "🔄", why: "±30 min alrededor de la bajamar. El agua se detiene por un momento y el lenguado se mueve sobre el fondo." },
+  "V5":  { name: "Periodo solunar mayor (alta)",            icon: "🌔", why: "La luna cruza el meridiano Y hay coincidencia con el sol. Actividad reforzada en todas las especies." },
+  "V6":  { name: "Repunte de bajamar",                      icon: "🏖️", why: "Las 2 horas antes de la bajamar. El agua se retira, concentra peces en pozas y canales." },
+  "V7":  { name: "Post-pleamar",                            icon: "🐟", why: "Primera hora después de la pleamar máxima. Los peces siguen activos antes de que el agua empiece a bajar fuerte." },
+  "V8":  { name: "Periodo solunar mayor (media)",           icon: "🌗", why: "Tránsito o antitránsito lunar sin coincidencia con el sol. Actividad notable aunque menos intensa." },
+  "V9":  { name: "Periodo solunar menor",                   icon: "🌒", why: "Salida o puesta de la luna. Ventana corta de actividad moderada." },
+  "V10": { name: "Reconocimiento del terreno",              icon: "👀", why: "Bajamar diurna antes del próximo repunte: buena hora para caminar la playa y ubicar pozones, correntones y rocas." }
+};
+
+function renderApp(data){
+  const hourly = buildHourly(data);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const activeDay = viewDay || today;
+  const isToday = !viewDay;
+  const dayLabel = isToday ? "hoy" : "mañana";
+  const w = buildWindows(hourly, activeDay, SPOT.lat, SPOT.lon);
+  const scores = computeScores(w, hourly);
+  const warnings = isToday ? buildWarnings(w, scores, hourly) : [];
+
+  // Condición actual (solo hoy)
+  const now = new Date();
+  let current = hourly[0];
+  for(const h of hourly){ if(h.t <= now) current = h; else break; }
+
+  // Botón toggle de día
+  const dayToggle = isToday
+    ? `<button class="btn btn-day" onclick="setView('tomorrow')">¿Y mañana? →</button>`
+    : `<button class="btn btn-day" onclick="setView('today')">← Volver a hoy</button>`;
+
+  const html = `
+    ${warnings.length ? warnings.map(w=>`<div class="warn">${w}</div>`).join("") : ""}
+
+    <div class="day-toggle-bar">${dayToggle}</div>
+
+    <div class="card">
+      <h2>Pronóstico de ${dayLabel}</h2>
+      <div class="scores">
+        <div class="score corvina">
+          <div class="label">🐟 Corvina</div>
+          <div class="n">${Math.round(scores.corvina.value)}<span style="font-size:1rem">/10</span></div>
+          <div class="exact">${scores.corvina.label} · ${scores.corvina.value.toFixed(1)}</div>
+        </div>
+        <div class="score lenguado">
+          <div class="label">🐟 Lenguado</div>
+          <div class="n">${Math.round(scores.lenguado.value)}<span style="font-size:1rem">/10</span></div>
+          <div class="exact">${scores.lenguado.label} · ${scores.lenguado.value.toFixed(1)}</div>
+        </div>
+      </div>
+      <details class="score-explain">
+        <summary>¿Cómo se calcula el puntaje?</summary>
+        <p>Cada especie tiene una fórmula ponderada con cinco factores. Cada factor se puntúa de 0 a 10 según tablas calibradas (amplitud mareal, altura de ola, fase lunar, viento en nudos, presión en hPa). Luego se combinan con estos pesos:</p>
+        <div class="score-formula">
+          <div><b class="plea-c">Corvina</b> = 0.30 · Marea + 0.25 · Oleaje + 0.20 · Luna + 0.15 · Viento + 0.10 · Presión</div>
+          <div><b style="color:#0d9488">Lenguado</b> = 0.35 · Oleaje + 0.25 · Marea + 0.20 · Viento + 0.10 · Presión + 0.10 · Luna</div>
+        </div>
+        <p>Los puntajes de cada factor aparecen desglosados en la sección <b>Análisis</b> más abajo. Etiquetas: ≥8 Excelente · ≥6 Bueno · ≥4 Regular · &lt;4 Malo.</p>
+        <table class="score-table">
+          <thead><tr><th>Factor</th><th>Rango</th><th>Puntos</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="4">Marea (amplitud % del máx. del período)</td><td>30–70%</td><td>10</td></tr>
+            <tr><td>70–85%</td><td>7</td></tr>
+            <tr><td>&gt;85%</td><td>4</td></tr>
+            <tr><td>&lt;30%</td><td>5</td></tr>
+            <tr><td rowspan="4">Oleaje (Hs máx. en primarias diurnas)</td><td>0.8–1.5 m</td><td>10</td></tr>
+            <tr><td>1.5–2.5 m</td><td>7</td></tr>
+            <tr><td>&gt;2.5 m</td><td>3</td></tr>
+            <tr><td>&lt;0.8 m</td><td>6</td></tr>
+            <tr><td>Luna (fase)</td><td>cuartos → llena/nueva</td><td>9 → 5</td></tr>
+            <tr><td rowspan="2">Viento (corvina ≤20 kn / lenguado ≤15 kn)</td><td>dentro de límite</td><td>8 / 9</td></tr>
+            <tr><td>sobre límite</td><td>4 / 5</td></tr>
+            <tr><td rowspan="2">Presión (pressure_msl)</td><td>≥1010 hPa</td><td>8 / 7</td></tr>
+            <tr><td>&lt;1010 hPa</td><td>5 / 5</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </div>
+
+    ${!isToday ? "" : `<div class="card">
+      <h2>Condiciones ahora · ${hhmm(current.t)}</h2>
+      <div class="cond">
+        <div class="c"><div class="k">Oleaje (Hs)</div><div class="v">${(current.wave_h??0).toFixed(1)}<span class="u">m</span></div></div>
+        <div class="c"><div class="k">Periodo</div><div class="v">${(current.wave_T??0).toFixed(1)}<span class="u">s</span></div></div>
+        <div class="c"><div class="k">Dir ola</div><div class="v">${compass(current.wave_dir||0)}<span class="u">${Math.round(current.wave_dir||0)}°</span></div></div>
+        <div class="c"><div class="k">Mar de fondo</div><div class="v">${(current.swell_h??0).toFixed(1)}<span class="u">m · ${(current.swell_T??0).toFixed(0)}s</span></div></div>
+        <div class="c"><div class="k">Viento</div><div class="v">${(current.wind??0).toFixed(0)}<span class="u">kn ${compass(current.wind_dir||0)}</span></div></div>
+        <div class="c"><div class="k">Racha</div><div class="v">${(current.gust??0).toFixed(0)}<span class="u">kn</span></div></div>
+        <div class="c"><div class="k">Temp. agua<sup>*</sup></div><div class="v">${(current.sst??0).toFixed(1)}<span class="u">°C</span></div></div>
+        <div class="c"><div class="k">Temp. aire</div><div class="v">${(current.air??0).toFixed(1)}<span class="u">°C</span></div></div>
+        <div class="c"><div class="k">Presión</div><div class="v">${(current.pressure??0).toFixed(0)}<span class="u">hPa · ${scores.pressTrend}</span></div></div>
+        <div class="c"><div class="k">Nubes</div><div class="v">${(current.clouds??0).toFixed(0)}<span class="u">%</span></div></div>
+        <div class="c"><div class="k">UV</div><div class="v">${(current.uv??0).toFixed(1)}</div></div>
+        <div class="c"><div class="k">Luna</div><div class="v">${Math.round(w.illum.fraction*100)}<span class="u">% · ${scores.moon.label}</span></div></div>
+      </div>
+      <div style="font-size:.74rem;color:var(--muted);margin-top:6px">* Temperatura del agua: salida de modelo (GFS-Wave), no mareógrafo real.</div>
+    </div>`}
+
+    <div class="card">
+      <h2>Estado de marea · ${dayLabel}</h2>
+      ${renderTideSection(w.extremes, w.sunrise, w.sunset, activeDay, isToday)}
+    </div>
+
+    <div class="card">
+      <h2>Periodos solunares · ${dayLabel}</h2>
+      ${renderSolunar(w.solunars, w.sunrise, w.sunset, w.moonTimes, activeDay)}
+    </div>
+
+    <div class="card">
+      <h2>Mejores horarios de ${dayLabel}</h2>
+      <p class="hour-intro">Cada bloque es un momento del día donde la pesca mejora por una razón concreta: el estado de la marea, la luz del sol, la posición de la luna o la combinación de varios. Están ordenados por hora.</p>
+      ${(() => {
+        const byStart = (a,b) => a.start - b.start;
+        const top = w.windows.filter(x => x.priority === "premium" || x.priority === "high").sort(byStart);
+        const rest = w.windows.filter(x => x.priority === "medium" || x.priority === "low").sort(byStart);
+        return `
+          <div class="windows">
+            ${top.length ? top.map(renderWindow).join("") : '<div class="note">Sin ventanas destacadas para este día.</div>'}
+          </div>
+          ${rest.length ? `<details class="more-windows">
+            <summary>Ver otras ${rest.length} ventanas de pesca (buenas y moderadas)</summary>
+            <div class="windows" style="margin-top:8px">
+              ${rest.map(renderWindow).join("")}
+            </div>
+          </details>` : ''}
+          <details class="score-explain" style="margin-top:12px">
+            <summary>¿Qué significan los códigos V1, V2, V3…?</summary>
+            <table class="score-table">
+              <thead><tr><th>Código</th><th>Nombre</th><th>Por qué importa</th></tr></thead>
+              <tbody>
+                ${Object.entries(WINDOW_MEANING).map(([k,v]) => `
+                  <tr><td><b>${k}</b></td><td>${v.icon} ${v.name}</td><td>${v.why}</td></tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <p style="margin-top:8px;font-size:.82rem">Basado en la metodología del handoff de Captain Claude v1.1. El código se mantiene como etiqueta pequeña a la derecha de cada bloque para referencia.</p>
+          </details>
+        `;
+      })()}
+    </div>
+
+    <div class="card">
+      <h2>Línea de tiempo 24 h · ${dayLabel}</h2>
+      ${renderTimeline(w, activeDay)}
+    </div>
+
+    <div class="card">
+      <h2>Análisis</h2>
+      <div class="ana">
+        <div class="a m">
+          <div class="t">Marea</div>
+          <div class="s">${scores.marea.s}<span style="font-size:.9rem">/10</span></div>
+          <div class="r">Amplitud ${dayLabel}: ${w.dayInfo.amp.toFixed(2)} m (${w.ampPct.toFixed(0)}% del máx. del período, ${w.maxPeriodAmp.toFixed(2)} m).<br>${scores.marea.r}</div>
+        </div>
+        <div class="a o">
+          <div class="t">Oleaje</div>
+          <div class="s">${scores.oleaje.s}<span style="font-size:.9rem">/10</span></div>
+          <div class="r">Hs máx. en primarias diurnas: ${scores.hsMax!=null ? scores.hsMax.toFixed(1)+" m" : "n/d"}.<br>${scores.oleaje.r}</div>
+        </div>
+        <div class="a l">
+          <div class="t">Luna</div>
+          <div class="s">${scores.moon.score}<span style="font-size:.9rem">/10</span></div>
+          <div class="r">${scores.moon.label} · ${Math.round(w.illum.fraction*100)}% iluminación · solunar ${w.intensidad}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mareas de ${dayLabel}</h2>
+      <table class="tides-table">
+        <thead><tr><th>Tipo</th><th>Hora</th><th>Altura (m)</th></tr></thead>
+        <tbody>
+          ${w.dayInfo.pleamares.concat(w.dayInfo.bajamares).sort((a,b)=>a.t-b.t).map(e=>`
+            <tr><td>${e.kind==="pleamar"?"🔼 Pleamar":"🔽 Bajamar"}</td><td>${hhmm(e.t)}</td><td>${e.h.toFixed(2)}</td></tr>
+          `).join("")}
+        </tbody>
+      </table>
+      <div class="note">
+        <b>Amplitud diaria:</b> ${w.dayInfo.amp.toFixed(2)} m · <b>% del máx. período (10 días):</b> ${w.ampPct.toFixed(0)}% ·
+        <b>Clasificación:</b> ${w.marejaViva ? "mareas muy vivas · corvina degradada en V6" : w.ampPct > 70 ? "mareas vivas" : w.ampPct < 30 ? "mareas muertas" : "mareas moderadas"}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Notas de metodología</h2>
+      <ul style="margin-left:18px;font-size:.88rem;line-height:1.6">
+        <li><b>Fuente única:</b> Open-Meteo (GFS 27 km para atmósfera y GFS-Wave 50 km para oleaje; modelo FES2014 para nivel del mar).</li>
+        <li><b>Coeficiente de marea:</b> se usa amplitud diaria expresada como porcentaje del máximo de la serie de 10 días (proxy local auto-calibrado; no es el coeficiente oficial de ningún anuario).</li>
+        <li><b>Intensidad solunar:</b> derivada de iluminación lunar (cerca de nueva/llena → alta; cuartos → baja; medios → media). No reproduce la etiqueta propietaria de tablademareas.</li>
+        <li><b>Presión:</b> incluida en el cálculo (fórmula completa, sin renormalización).</li>
+        <li><b>Temperatura del agua:</b> salida de modelo, no medición de mareógrafo. Para condición real: boletines ENFEN/IMARPE.</li>
+        <li><b>Ventanas V1–V10:</b> calculadas según CAPTAIN_CLAUDE_HANDOFF.md v1.1. Degradación de corvina en V6 cuando amplitud &gt;85% del máximo del período.</li>
+        <li><b>Spot:</b> ${SPOT.lat}, ${SPOT.lon} (sondeo aproximado; sin precisión ingenieril).</li>
+      </ul>
+    </div>
+
+    <div class="foot">
+      🎣 Captain Claude · Pronóstico autogenerado · Última consulta: ${new Date(data.fetched).toLocaleString("es-PE",{timeZone:SPOT.tz})}
+      <br><button class="btn" onclick="refresh()">🔄 Actualizar datos</button>
+    </div>
+  `;
+  document.getElementById("content").innerHTML = html;
+  document.getElementById("now").textContent = "Actualizado: " + new Date().toLocaleString("es-PE",{timeZone:SPOT.tz});
+}
+
+function renderWindow(w){
+  const info = WINDOW_MEANING[w.kind] || { name: w.kind, icon: "🐟", why: w.reason };
+  const crossMid = !sameDay(w.start, w.end);
+  const span = `${hhmmAmPm(w.start)} – ${hhmmAmPm(w.end)}${crossMid ? " (cruza medianoche)" : ""}`;
+  const prio = prioClass(w.priority);
+  return `<div class="hour-block prio-${prio}">
+    <div class="hour-left">
+      <div class="hour-icon">${info.icon}</div>
+      <div class="hour-time">${span}</div>
+    </div>
+    <div class="hour-body">
+      <div class="hour-head">
+        <span class="hour-name">${info.name}</span>
+        <span class="hour-tag tag-${prio}">${w.quality}</span>
+      </div>
+      <div class="hour-why">${info.why}</div>
+      <div class="hour-meta">
+        <span class="hour-target">🎯 ${w.species}</span>
+        <span class="hour-code">${w.kind}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTimeline(w, day){
+  const start = new Date(day); start.setHours(0,0,0,0);
+  const toPct = d => Math.max(0, Math.min(100, ((d - start) / (24*60*60*1000)) * 100));
+  const parts = [];
+  // Noche
+  if(w.sunrise) parts.push(`<div class="night" style="left:0%;width:${toPct(w.sunrise)}%"></div>`);
+  if(w.sunset){
+    const dayEnd = new Date(start); dayEnd.setDate(dayEnd.getDate()+1);
+    parts.push(`<div class="night" style="left:${toPct(w.sunset)}%;width:${toPct(dayEnd)-toPct(w.sunset)}%"></div>`);
+  }
+  // Ventanas (solo las que caen hoy)
+  const colors = { premium:"linear-gradient(90deg,#a855f7,#ec4899)", high:"linear-gradient(90deg,#22c55e,#16a34a)", medium:"linear-gradient(90deg,#eab308,#f97316)", low:"#6b7280" };
+  w.windows.filter(x => sameDay(x.start, day) || sameDay(x.end, day)).forEach(x=>{
+    const s = sameDay(x.start, day) ? toPct(x.start) : 0;
+    const e = sameDay(x.end, day) ? toPct(x.end) : 100;
+    parts.push(`<div class="win" style="left:${s}%;width:${Math.max(0.5,e-s)}%;background:${colors[prioClass(x.priority)]}" title="${x.kind} ${hhmm(x.start)}–${hhmm(x.end)}"></div>`);
+  });
+  // Marcas
+  if(w.sunrise) parts.push(`<div class="mark sun" style="left:${toPct(w.sunrise)}%" title="Amanecer ${hhmm(w.sunrise)}"></div>`);
+  if(w.sunset) parts.push(`<div class="mark sun" style="left:${toPct(w.sunset)}%" title="Atardecer ${hhmm(w.sunset)}"></div>`);
+  w.dayInfo.pleamares.forEach(p=>parts.push(`<div class="mark pleamar" style="left:${toPct(p.t)}%" title="Pleamar ${hhmm(p.t)} · ${p.h.toFixed(2)}m"></div>`));
+  w.dayInfo.bajamares.forEach(b=>parts.push(`<div class="mark bajamar" style="left:${toPct(b.t)}%" title="Bajamar ${hhmm(b.t)} · ${b.h.toFixed(2)}m"></div>`));
+  parts.push(`<div class="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>`);
+  return `<div class="timeline">${parts.join("")}</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:6px">🟪 Premium · 🟩 High · 🟨 Medium · ⬛ Low · ☀️ Sol · 🔵 Pleamar · 🟧 Bajamar · zonas oscuras = noche</div>`;
+}
+
+function computeTideCycle(extremes){
+  // Ciclo actual = tramo entre el extremo anterior a ahora y el siguiente.
+  // Las etiquetas pleamar/bajamar del reloj representan ese ciclo.
+  const sorted = [...extremes].sort((a,b)=>a.t-b.t);
+  const now = new Date();
+  const next = sorted.find(e => e.t > now);
+  const prev = sorted.filter(e => e.t <= now).pop();
+  if(!next || !prev) return null;
+  const subiendo = next.kind === "pleamar"; // viene pleamar => estamos subiendo
+  // En el ciclo actual, la pleamar es la que está ARRIBA (al final si sube, al inicio si baja)
+  // y la bajamar es la que está ABAJO.
+  const pleamar = subiendo ? next : prev;
+  const bajamar = subiendo ? prev : next;
+  const progress = clamp((now - prev.t) / (next.t - prev.t), 0, 1);
+  // SVG rotate: 0°=arriba (pleamar), 90°=der, 180°=abajo (bajamar), 270°=izq
+  const angle = subiendo ? 180 + 180*progress : 180*progress;
+  return { now, prev, next, subiendo, pleamar, bajamar, progress, angle };
+}
+
+function tideWheelSVG(cycle){
+  if(!cycle){
+    return `<div class="note">Datos insuficientes para el reloj de marea.</div>`;
+  }
+  const { pleamar, bajamar, angle } = cycle;
+  return `
+    <div class="tide-wheel-wrap">
+      <svg class="tide-wheel" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg" aria-label="Reloj de marea">
+        <defs>
+          <linearGradient id="riseGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2563eb"/>
+            <stop offset=".5" stop-color="#a855f7"/>
+            <stop offset="1" stop-color="#dc2626"/>
+          </linearGradient>
+        </defs>
+        <!-- Labels fuera del círculo -->
+        <text x="160" y="22" text-anchor="middle" class="lbl lbl-plea">pleamar</text>
+        <text x="160" y="291" text-anchor="middle" class="lbl lbl-baja">bajamar</text>
+        <!-- Horas dentro del círculo (cerca de los extremos) -->
+        <text x="160" y="92" text-anchor="middle" class="lbl-t">${hhmmAmPm(pleamar.t)}</text>
+        <text x="160" y="222" text-anchor="middle" class="lbl-t">${hhmmAmPm(bajamar.t)}</text>
+        <!-- Subiendo / bajando a los lados -->
+        <text x="60" y="155" text-anchor="end" class="lbl-s">subiendo</text>
+        <text x="260" y="155" text-anchor="start" class="lbl-s">bajando</text>
+        <!-- Arco izquierdo (subiendo): coloreado si estamos subiendo, gris si no -->
+        <path d="M 160,70 A 80,80 0 0,0 160,230" fill="none" stroke="${cycle.subiendo ? 'url(#riseGrad)' : '#9ca3af'}" stroke-width="10" stroke-linecap="round"/>
+        <!-- Arco derecho (bajando): coloreado si estamos bajando, gris si no -->
+        <path d="M 160,70 A 80,80 0 0,1 160,230" fill="none" stroke="${cycle.subiendo ? '#9ca3af' : 'url(#riseGrad)'}" stroke-width="10" stroke-linecap="round"/>
+        <!-- Puntos de extremo -->
+        <circle cx="160" cy="70" r="7" fill="#3b82f6"/>
+        <circle cx="160" cy="230" r="7" fill="#dc2626"/>
+        <!-- Rosa de los vientos decorativa -->
+        <g transform="translate(160,150)" opacity=".18">
+          <circle r="42" fill="none" stroke="currentColor" stroke-width=".6"/>
+          <path d="M0,-42 L0,42 M-42,0 L42,0" stroke="currentColor" stroke-width=".6"/>
+          <path d="M0,-38 L-3,-6 L3,-6 Z" fill="currentColor"/>
+        </g>
+        <!-- Aguja de posición actual -->
+        <g transform="translate(160,150) rotate(${angle.toFixed(1)})">
+          <polygon points="0,-55 -6,0 6,0" fill="#dc2626"/>
+          <circle r="5" fill="#dc2626"/>
+        </g>
+      </svg>
+    </div>
+  `;
+}
+
+function tideNarrative(extremes, sunrise, sunset, day, cycle, isToday){
+  const sorted = [...extremes].sort((a,b)=>a.t-b.t);
+  const dayExt = sorted.filter(e => sameDay(e.t, day));
+  const pleamares = dayExt.filter(e => e.kind === "pleamar");
+  const bajamares = dayExt.filter(e => e.kind === "bajamar");
+  const now = new Date();
+
+  function narrPair(arr, kind, cls){
+    if(arr.length === 0) return `No se detectaron ${kind}es ese día.`;
+    if(arr.length === 1){
+      const e = arr[0];
+      const verb = isToday ? (e.t <= now ? "fue" : "será") : "será";
+      return `la única ${kind} del día ${verb} a las <span class="${cls}">${hhmmAmPm(e.t)}</span>`;
+    }
+    const e1 = arr[0], e2 = arr[1];
+    const v1 = isToday ? (e1.t <= now ? "fue" : "será") : "será";
+    const v2 = isToday ? (e2.t <= now ? "fue" : "será") : "será";
+    const ord = isToday ? (e2.t <= now ? "segunda" : "siguiente") : "segunda";
+    return `la primera ${kind} ${v1} a las <span class="${cls}">${hhmmAmPm(e1.t)}</span> y la ${ord} ${kind} ${v2} a las <span class="${cls}">${hhmmAmPm(e2.t)}</span>`;
+  }
+
+  const plea = narrPair(pleamares, "pleamar", "plea-c");
+  const baja = narrPair(bajamares, "bajamar", "baja-c");
+
+  // Caja de estado solo cuando se ve HOY (hay un "ahora" dentro del ciclo)
+  let statusBox = "";
+  if(isToday && cycle){
+    const estado = cycle.subiendo ? "subiendo" : "bajando";
+    const estadoClass = cycle.subiendo ? "plea-c" : "baja-c";
+    const tipoProx = cycle.next.kind;
+    const tipoProxClass = tipoProx === "pleamar" ? "plea-c" : "baja-c";
+    const falta = duration(cycle.next.t - now);
+    statusBox = `
+      <div class="tide-status-box">
+        El nivel del agua está <span class="highlight ${estadoClass}">${estado}</span> en estos momentos. La <span class="highlight ${tipoProxClass}">${tipoProx}</span> será dentro de <span class="highlight">${falta}</span>.
+      </div>`;
+  }
+
+  const sunriseStr = sunrise ? hhmmAmPm(sunrise) : "—";
+  const sunsetStr = sunset ? hhmmAmPm(sunset) : "—";
+  const dayPrefix = isToday ? "Hoy" : "Mañana";
+  const amanVerb = isToday ? "amaneció" : "amanecerá";
+  const putaVerb = isToday ? "será" : "será";
+
+  return `
+    <div class="tide-narrative">
+      <p>${dayPrefix} ${dateLong(day)}, ${amanVerb} en <b>Cerrillos</b> a las <span class="sun-time">${sunriseStr}</span> y la puesta de sol ${putaVerb} a las <span class="sun-time">${sunsetStr}</span>.</p>
+      <p>En el gráfico de pleamares y bajamares, podemos observar que ${plea}. ${baja.charAt(0).toUpperCase()+baja.slice(1)}.</p>
+      ${statusBox}
+    </div>
+  `;
+}
+
+function renderTideSection(extremes, sunrise, sunset, day, isToday){
+  const cycle = isToday ? computeTideCycle(extremes) : null;
+  const now = new Date();
+  const wheel = isToday ? tideWheelSVG(cycle) : "";
+  const sectionClass = isToday ? "tide-section" : "tide-section tide-section-nowheel";
+  const captionLabel = isToday ? "💬 Estado actual de la marea" : "📅 Pronóstico de marea";
+  const captionRight = isToday ? dateCaption(now) : dateLong(day).toUpperCase();
+  return `
+    <div class="${sectionClass}">
+      ${wheel}
+      ${tideNarrative(extremes, sunrise, sunset, day, cycle, isToday)}
+    </div>
+    <div class="tide-caption">
+      <span>${captionLabel}</span>
+      <span class="cap-r">${captionRight}</span>
+    </div>
+  `;
+}
+
+function solunarIconSVG(center){
+  const h = center.getHours() + center.getMinutes()/60;
+  const angle = (h/24) * 360;
+  return `<svg width="44" height="44" viewBox="0 0 44 44" class="sol-icon" aria-hidden="true">
+    <circle cx="22" cy="22" r="16" fill="none" stroke="#f59e0b" stroke-width="3"/>
+    <circle cx="22" cy="22" r="13" fill="#fef3c7" opacity=".3"/>
+    <g transform="translate(22,22) rotate(${angle.toFixed(1)})">
+      <circle cx="0" cy="-16" r="4" fill="#f59e0b"/>
+    </g>
+  </svg>`;
+}
+
+const SOLUNAR_LEVELS = {
+  muy_alta: { label: "MUY ALTA", fish: 3, color: "green" },
+  alta:     { label: "ALTA",     fish: 3, color: "amber" },
+  media:    { label: "MEDIA",    fish: 2, color: "amber" },
+  baja:     { label: "BAJA",     fish: 1, color: "amber" }
+};
+
+function solunarFishIcons(count){
+  let out = "";
+  for(let i=0;i<4;i++) out += `<span class="${i<count?"":"off"}">🐟</span>`;
+  return `<span class="sol-fish">${out}</span>`;
+}
+
+function solunarCardHTML(s){
+  const lvl = SOLUNAR_LEVELS[s.intensity];
+  const coincMsg = s.solCoincide
+    ? `<div class="sol-sun-coinc">Este periodo coincide con la <b>${s.coincEvent}</b>; por tanto el sol ejercerá todavía más influencia, resultando un momento inmejorable para la pesca.</div>`
+    : "";
+  return `<div class="sol-card sol-${lvl.color}">
+    ${solunarIconSVG(s.center)}
+    <div class="sol-body">
+      <div class="sol-act sol-act-${lvl.color}">ACTIVIDAD ${lvl.label} ${solunarFishIcons(lvl.fish)}</div>
+      <div class="sol-range">de <b>${hhmmAmPm(s.start)}</b> a <b>${hhmmAmPm(s.end)}</b></div>
+      <div class="sol-desc">${s.label}</div>
+      ${coincMsg}
+    </div>
+  </div>`;
+}
+
+function solunarDayVerdict(solunars){
+  const verdes = solunars.filter(s=>s.solCoincide).length;
+  if(verdes >= 2) return { text: "Día destacado: dos o más periodos solunares coinciden con salida o puesta de sol.", cls: "verdict-green" };
+  if(verdes === 1) return { text: "Día favorable: un periodo solunar coincide con el amanecer o atardecer.", cls: "verdict-amber" };
+  return { text: "Día normal: sin coincidencias entre periodos solunares y salida o puesta de sol.", cls: "verdict-gray" };
+}
+
+function renderSolunarChart(solunars, sunrise, sunset, moonTimes, day){
+  // Gráfico de barras por periodo. Eje X = 24h del día. Altura por intensidad. Verde si coincide con sol.
+  const W = 900, H = 230;
+  const padL = 20, padR = 20, padT = 20, padB = 50;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const start = new Date(day); start.setHours(0,0,0,0);
+  const end = new Date(start); end.setDate(end.getDate()+1);
+  const span = end - start;
+  const toX = d => padL + Math.max(0, Math.min(1, (d - start) / span)) * chartW;
+  const H_MUY = chartH;         // 100%
+  const H_ALTA = chartH * 0.78;  // 78%
+  const H_MEDIA = chartH * 0.55; // 55%
+  const H_BAJA = chartH * 0.32;  // 32%
+  const barH = { muy_alta: H_MUY, alta: H_ALTA, media: H_MEDIA, baja: H_BAJA };
+  const gridY = [
+    { y: H_MUY, label: "muy alta" },
+    { y: H_ALTA, label: "alta" },
+    { y: H_MEDIA, label: "media" },
+    { y: H_BAJA, label: "baja" }
+  ];
+  // Marcas horarias cada 3h
+  const hourMarks = [];
+  for(let h = 0; h <= 24; h += 3){
+    const t = new Date(start); t.setHours(h);
+    hourMarks.push({ x: toX(t), label: hhmmAmPm(t) });
+  }
+  // Marcas de sol/luna
+  const events = [];
+  if(sunrise && sameDay(sunrise, day)) events.push({ x: toX(sunrise), t: sunrise, type: "sunrise", glyph: "☀", arrow: "↑" });
+  if(sunset && sameDay(sunset, day)) events.push({ x: toX(sunset), t: sunset, type: "sunset", glyph: "☀", arrow: "↓" });
+  if(moonTimes.rise && sameDay(moonTimes.rise, day)) events.push({ x: toX(moonTimes.rise), t: moonTimes.rise, type: "moonrise", glyph: "🌙", arrow: "↑" });
+  if(moonTimes.set && sameDay(moonTimes.set, day)) events.push({ x: toX(moonTimes.set), t: moonTimes.set, type: "moonset", glyph: "🌙", arrow: "↓" });
+
+  const barsSvg = solunars.map(p => {
+    const x1 = toX(p.start), x2 = toX(p.end);
+    const w = Math.max(6, x2 - x1);
+    const h = barH[p.intensity];
+    const y = padT + chartH - h;
+    const fill = p.solCoincide ? "#22c55e" : "#eab308";
+    const stroke = p.solCoincide ? "#16a34a" : "#d97706";
+    const fishY = y + h/2 + 6;
+    const fishCount = SOLUNAR_LEVELS[p.intensity].fish;
+    const fishX = x1 + w/2;
+    // Peces dentro de la barra
+    const fishSvg = `<text x="${fishX}" y="${fishY}" text-anchor="middle" font-size="14" fill="#fff" opacity=".9">${"🐟".repeat(Math.min(fishCount,3))}</text>`;
+    return `<rect x="${x1}" y="${y}" width="${w}" height="${h}" fill="${fill}" fill-opacity="0.78" stroke="${stroke}" stroke-width="1.5" rx="4"/>${fishSvg}`;
+  }).join("");
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" class="solunar-chart" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <!-- Grid de actividad -->
+      ${gridY.map(g => `
+        <line x1="${padL}" y1="${padT + chartH - g.y}" x2="${W - padR}" y2="${padT + chartH - g.y}" stroke="currentColor" stroke-opacity=".15" stroke-dasharray="3,4"/>
+      `).join("")}
+      <!-- Barras -->
+      ${barsSvg}
+      <!-- Eje X -->
+      <line x1="${padL}" y1="${padT + chartH}" x2="${W - padR}" y2="${padT + chartH}" stroke="currentColor" stroke-opacity=".3"/>
+      <!-- Marcas horarias -->
+      ${hourMarks.map(m => `
+        <line x1="${m.x}" y1="${padT + chartH}" x2="${m.x}" y2="${padT + chartH + 4}" stroke="currentColor" stroke-opacity=".3"/>
+        <text x="${m.x}" y="${padT + chartH + 16}" text-anchor="middle" font-size="10" fill="currentColor" opacity=".7">${m.label}</text>
+      `).join("")}
+      <!-- Eventos sol/luna -->
+      ${events.map(e => `
+        <text x="${e.x}" y="${padT + chartH + 38}" text-anchor="middle" font-size="12">${e.glyph}${e.arrow}</text>
+      `).join("")}
+    </svg>
+  `;
+}
+
+function renderSolunar(solunars, sunrise, sunset, moonTimes, day){
+  const mayores = solunars.filter(s=>s.kind==="mayor").sort((a,b)=>a.start-b.start);
+  const menores = solunars.filter(s=>s.kind==="menor").sort((a,b)=>a.start-b.start);
+  const verdict = solunarDayVerdict(solunars);
+  return `
+    <div class="sol-verdict ${verdict.cls}">${verdict.text}</div>
+
+    <div class="sol-chart-wrap">
+      ${renderSolunarChart(solunars, sunrise, sunset, moonTimes, day)}
+      <div class="sol-legend">
+        <span class="lg"><i class="sw green"></i> Actividad reforzada (coincide con salida/puesta de sol)</span>
+        <span class="lg"><i class="sw amber"></i> Actividad normal del periodo solunar</span>
+        <span class="lg">☀↑ amanecer · ☀↓ atardecer · 🌙↑ salida de luna · 🌙↓ puesta de luna</span>
+      </div>
+    </div>
+
+    <div style="color:var(--text-dim);font-size:.9rem;margin:16px 0 8px">Los mejores momentos del día para la pesca son:</div>
+    <div class="solunar-grid">
+      <div>
+        <div class="sol-col-title">PERIODOS MAYORES</div>
+        ${mayores.length ? mayores.map(solunarCardHTML).join("") : '<div class="note">Sin periodos mayores detectables.</div>'}
+      </div>
+      <div>
+        <div class="sol-col-title">PERIODOS MENORES</div>
+        ${menores.length ? menores.map(solunarCardHTML).join("") : '<div class="note">Sin periodos menores detectables.</div>'}
+      </div>
+    </div>
+
+    <details class="sol-theory">
+      <summary>¿Qué son los periodos solunares?</summary>
+      <p>La <b>teoría solunar</b> fue propuesta por el estadounidense <b>John Alden Knight en 1926</b>. Está basada en estudios experimentales según los cuales la acción del sol y de la luna influye en la actividad de todos los seres vivos de la naturaleza. Los momentos del día en que esa actividad es mayor se llaman <b>periodos solunares</b>.</p>
+      <p><b>Periodos mayores:</b> ~2 h de duración, centrados en el <b>tránsito lunar</b> (luna sobre nuestras cabezas) y en el <b>tránsito lunar opuesto</b> (luna bajo nuestros pies). Suelen ser los momentos de mayor actividad.</p>
+      <p><b>Periodos menores:</b> ~1 h de duración, centrados en la <b>salida</b> y la <b>puesta</b> de la luna.</p>
+      <p>Cuando un periodo solunar coincide con la <b>salida o puesta de sol</b>, la actividad esperada aumenta todavía más: estos periodos aparecen en <span style="color:#16a34a;font-weight:700">verde</span> en el gráfico.</p>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:8px">Cálculo local: tránsitos por iteración de la posición lunar (SunCalc.getMoonPosition cada 10 min); salida y puesta por SunCalc.getMoonTimes; coincidencia con sol por SunCalc.getTimes. Sin dependencia de tablademareas.</p>
+    </details>
+  `;
+}
+
+// Estado global: qué día se está visualizando. null = hoy.
+let viewDay = null;
+
+function setView(mode){
+  const today = new Date(); today.setHours(0,0,0,0);
+  if(mode === "tomorrow"){
+    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+    viewDay = tomorrow;
+  } else {
+    viewDay = null;
+  }
+  main();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function refresh(){
+  try{
+    sessionStorage.removeItem(CACHE_KEY);
+    document.getElementById("content").innerHTML = `<div class="card">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="width:80%"></div>
+      <div class="skeleton" style="width:60%"></div>
+      <div style="margin-top:8px;color:var(--muted);font-size:.88rem">Consultando Open-Meteo…</div>
+    </div>`;
+    main();
+  }catch(e){ showError(e); }
+}
+
+function showError(e){
+  const msg = `<div class="card"><div class="err"><b>No se pudieron cargar los datos.</b><br>${e.message || e}<br><br><button class="btn" onclick="refresh()">Reintentar</button></div></div>`;
+  const content = document.getElementById("content");
+  if(content) content.innerHTML = msg;
+  else document.getElementById("app").insertAdjacentHTML("beforeend", msg);
+}
+
+async function main(){
+  try{
+    const data = await loadData();
+    renderApp(data);
+  }catch(e){
+    console.error(e);
+    showError(e);
+  }
+}
+main();
+</script>
+</body>
+</html>
